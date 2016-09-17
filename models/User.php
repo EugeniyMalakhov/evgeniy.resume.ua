@@ -2,38 +2,46 @@
 
 namespace app\models;
 
-class User extends \yii\base\Object implements \yii\web\IdentityInterface
+use \yii\db\ActiveRecord;
+
+class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+    public static function tableName(){
+        return 'tbl_user';
+    }
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+    public function attributeLabels(){
+        return [
+            'first_name' => 'Имя',
+            'last_name' => 'Фамилия',
+            'username' => 'Логин',
+            'password' => 'Пароль',
+            'email' => 'Почта',
+            'data' => 'Дата рождения',
+            'phone' => 'Телефон',
+            'avatar' => 'Фото',
+        ];
+    }
 
+    public function rules()
+    {
+        return [
+            // username and password are both required
+            [['first_name', 'last_name', 'username', 'password', 'email', 'data', 'phone'], 'required'],
+            // password is validated by validatePassword()
+            //['password', 'updatePassword'],
+            ['email', 'email'],
+            ['data', 'validateData'],
+            ['phone', 'validatePhone'],
+        ];
+    }
 
     /**
      * @inheritdoc
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return static::findOne($id);
     }
 
     /**
@@ -41,13 +49,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        //return static::findOne(['access_token' => $token]);
     }
 
     /**
@@ -58,13 +60,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return static::findOne(['username' => $username]);
     }
 
     /**
@@ -80,7 +76,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
@@ -88,7 +84,7 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key === $authKey;
     }
 
     /**
@@ -99,6 +95,26 @@ class User extends \yii\base\Object implements \yii\web\IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return \Yii::$app->security->validatePassword($password, $this->password);
+    }
+
+    public function generateAuthKey(){
+        $this->auth_key = \Yii::$app->security->generateRandomString();
+    }
+
+    public function validateData($attribute){
+        if (!$this->hasErrors()) {
+            if(!preg_match('/^\d{4}\-\d{2}\-\d{2}$/', $this->data)){
+                $this->addError($attribute, 'Дата должна быть в формате гггг-мм-дд!');
+            }
+        }
+    }
+
+    public function validatePhone($attribute, $phone){
+        if (!$this->hasErrors()) {
+            if(!preg_match('/^\d{3}\-\d{7}$/', $this->phone)){
+                $this->addError($attribute, 'Дата должна быть в формате ***-*******!');
+            }
+        }
     }
 }

@@ -2,15 +2,20 @@
 
 namespace app\controllers;
 
+
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use yii\web\NotFoundHttpException;
+use app\models\RegisterForm;
+use app\models\User;
 
 class SiteController extends Controller
 {
+
     /**
      * @inheritdoc
      */
@@ -19,13 +24,18 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                'only' => ['login', 'logout', 'signup', 'office'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['login', 'signup'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['logout', 'office'],
                         'allow' => true,
                         'roles' => ['@'],
-                    ],
+                    ]
                 ],
             ],
             'verbs' => [
@@ -76,7 +86,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->goHome();
         }
         return $this->render('login', [
             'model' => $model,
@@ -118,8 +128,29 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionAbout()
+
+    public function actionOffice($id)
     {
-        return $this->render('about');
+
+        $model = $this->findModel($id);
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['office', 'id' => $model->id]);
+        }
+        return $this->render('office', [
+                'model' => $model,
+            ]);
+    }
+
+    public function actionRegister(){
+        return $this->render('register');
+    }
+
+    protected function findModel($id)
+    {
+        if (($model = User::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
