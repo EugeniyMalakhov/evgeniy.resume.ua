@@ -148,6 +148,7 @@ class SiteController extends Controller
         $model = new RegisterForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->sendMail();
             return $this->redirect('login');
         } else {
             return $this->render('register', [

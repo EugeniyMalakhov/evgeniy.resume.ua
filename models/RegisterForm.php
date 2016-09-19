@@ -21,6 +21,7 @@ class RegisterForm extends Model
     public $email;
     public $data;
     public $phone;
+    public $verifyCode;
 
     private $_pass;
 
@@ -34,6 +35,7 @@ class RegisterForm extends Model
             'email' => 'Почта',
             'data' => 'Дата рождения',
             'phone' => 'Телефон',
+            'verifyCode' => 'Код проверки',
         ];
     }
 
@@ -49,6 +51,7 @@ class RegisterForm extends Model
             ['email', 'email'],
             ['data', 'validateData'],
             ['phone', 'validatePhone'],
+            ['verifyCode', 'captcha'],
         ];
     }
 
@@ -76,6 +79,16 @@ class RegisterForm extends Model
         }
     }
 
+    public function sendMail(){
+        Yii::$app->mailer->compose()
+            ->setFrom('eugeniymalakhov@gmail.com')
+            ->setTo($this->email)
+            ->setSubject('Успешная регистрация')
+            ->setTextBody('Спасибо большое за регистрацию на нашем сайте!')
+            ->setHtmlBody('<b>http://evgeniy.resume.ua</b>')
+            ->send();
+    }
+
     /**
      * Logs in a user using the provided username and password.
      * @return boolean whether the user is logged in successfully
@@ -93,7 +106,6 @@ class RegisterForm extends Model
                 'phone' => $this->phone,
                 'avatar' => 'no-avatar.png',
             ])->execute();
-
             return true;
             //return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
         }

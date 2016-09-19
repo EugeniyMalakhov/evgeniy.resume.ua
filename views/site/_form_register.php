@@ -1,5 +1,6 @@
 <?php
 
+use yii\captcha\Captcha;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -25,6 +26,10 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'data')->textInput() ?>
 
     <?= $form->field($model, 'phone')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
+        'template' => '<div class="row"><div class="col-lg-3">{image}</div><div class="col-lg-6">{input}</div></div>',
+    ]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Регистрация', ['class' => 'btn btn-success']) ?>
