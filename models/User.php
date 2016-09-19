@@ -33,6 +33,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             ['email', 'email'],
             ['data', 'validateData'],
             ['phone', 'validatePhone'],
+            [['avatar'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg', 'maxFiles' => 1],
         ];
     }
 
@@ -110,11 +111,17 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
-    public function validatePhone($attribute, $phone){
+    public function validatePhone($attribute){
         if (!$this->hasErrors()) {
             if(!preg_match('/^\d{3}\-\d{7}$/', $this->phone)){
                 $this->addError($attribute, 'Дата должна быть в формате ***-*******!');
             }
         }
+    }
+
+    public function upload()
+    {
+        $this->avatar->saveAs('../web/images/' . $this->avatar->baseName . '.' . $this->avatar->extension);
+        return true;
     }
 }

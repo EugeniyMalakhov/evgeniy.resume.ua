@@ -3,6 +3,7 @@
 /* @var $this \yii\web\View */
 /* @var $content string */
 
+use yii\bootstrap\Modal;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -48,8 +49,11 @@ AppAsset::register($this);
             ) : (
                 '<li>'
                 . Html::beginForm(['/site/logout'], 'post', ['class' => 'navbar-form'])
+                . Html::img('@web/images/'.Yii::$app->user->identity->avatar,
+                    ['alt' => $model->last_name, 'height' => 34, 'width' => 34, 'class' => 'avatar'])
                 . Html::submitButton(
-                    '(' . Yii::$app->user->identity->username . ') Выход',
+
+                    '(' . Yii::$app->user->identity->first_name .' '. mb_substr(Yii::$app->user->identity->last_name, 0, 1, 'UTF-8') .".". ') Выход',
                     ['class' => 'btn btn-link']
                 )
                 . Html::endForm()
@@ -64,6 +68,7 @@ AppAsset::register($this);
         <?= Breadcrumbs::widget([
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
         ]) ?>
+
         <?= $content ?>
     </div>
 </div>

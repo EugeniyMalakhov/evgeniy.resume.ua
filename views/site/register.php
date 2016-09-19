@@ -11,5 +11,14 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-contact">
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php echo Yii::$app->getSecurity()->generatePasswordHash('80983005514')?>
+
+    <div class="user-create">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
+                <?= $this->render('_form_register', [
+                    'model' => $model,
+                ]) ?>
+            </div>
+        </div>
+    </div>
 </div>

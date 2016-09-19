@@ -12,6 +12,7 @@ use app\models\ContactForm;
 use yii\web\NotFoundHttpException;
 use app\models\RegisterForm;
 use app\models\User;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -131,18 +132,35 @@ class SiteController extends Controller
 
     public function actionOffice($id)
     {
-
         $model = $this->findModel($id);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['office', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())){
+            $model->avatar = UploadedFile::getInstance($model, 'avatar');
+            $model->upload();
+            if($model->save())
+                return $this->redirect(['office', 'id' => $model->id]);
         }
         return $this->render('office', [
-                'model' => $model,
-            ]);
+            'model' => $model,
+        ]);
     }
 
     public function actionRegister(){
-        return $this->render('register');
+        $model = new RegisterForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect('login');
+        } else {
+            return $this->render('register', [
+                'model' => $model,
+            ]);
+        }
+    }
+
+    public function actionDelete($id){
+        $user = $this->findModel($id);
+        $user->delete();
+        $this->actionLogout();
+        return $this->goHome();
     }
 
     protected function findModel($id)

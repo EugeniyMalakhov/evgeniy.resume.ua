@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 ?>
 
 <div class="user-form">
-    <?= Html::img('@web/images/avatar.jpg', ['alt' => 'Евгений', 'height' => 350, 'width' => 250])?>
+    <?= Html::img('@web/images/'.$model->avatar, ['alt' => $model->last_name, 'height' => 350, 'width' => 250])?>
 
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
